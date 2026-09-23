@@ -1,134 +1,113 @@
+import os
 import json
 import logging
-from typing import Any, Dict, Optional
-
+import time
 from openai import OpenAI
-from backend.app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-client = OpenAI(
-    base_url="https://openrouter.ai/api/v1",
-    api_key=settings.OPENROUTER_API_KEY,
-)
-
 
 class GeminiClient:
-    def __init__(self, model: Optional[str] = None):
-        self.model = model or settings.GEMINI_MODEL
 
-    def generate_text(
-            self,
-            prompt: str,
-            temperature: float = 0.2,
-            max_output_tokens: int = 2048,
-    ) -> str:
+    def __init__(self):
+        self.model = os.getenv("GEMINI_MODEL", "openrouter/free")
 
-        try:
-            response = client.chat.completions.create(
-                model=self.model,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=temperature,
-                max_tokens=max_output_tokens,
-            )
-
-            return response.choices[0].message.content
-
-        except Exception as e:
-            logger.exception("OpenRouter text generation failed")
-            raise RuntimeError(f"OpenRouter API error: {str(e)}")
-
-    def generate_free_json(
-            self,
-            prompt: str,
-            temperature: float = 0.1,
-            system: str = "You must respond ONLY with a valid JSON object.",
-    ) -> Dict[str, Any]:
-        try:
-            response = client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": system},
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=temperature,
-                max_tokens=32768,
-                # No response_format — avoids JSON-mode token budget issues with
-                # extended-thinking models (e.g. Gemini 2.5 Pro) where JSON mode can
-                # truncate output. We enforce JSON via the system prompt instead.
-            )
-            text = (response.choices[0].message.content or "").strip()
-            # Strip markdown code fences if the model wraps output in them
-            if text.startswith("```"):
-                lines = text.splitlines()
-                end = len(lines) - 1 if lines[-1].strip() == "```" else len(lines)
-                text = "\n".join(lines[1:end])
-            return json.loads(text)
-        except json.JSONDecodeError as e:
-            logger.exception("Failed to parse JSON from free JSON generation")
-            raise RuntimeError(f"Model returned invalid JSON: {str(e)}")
-        except Exception as e:
-            logger.exception("OpenRouter free JSON generation failed")
-            raise RuntimeError(f"OpenRouter API error: {str(e)}")
-
-    def generate_json(
-            self,
-            prompt: str,
-            schema: Dict[str, Any],
-            temperature: float = 0.1,
-    ) -> Dict[str, Any]:
-
-        system_prompt = (
-            "You are an expert HR AI. "
-            "Analyze the provided input and extract real data from it. "
-            "Respond ONLY with a valid JSON object containing actual extracted values — "
-            "do NOT return the schema structure itself. "
-            "Do NOT include keys named 'type', 'properties', or 'required' at the top level. "
-            "Return a filled JSON object instance that conforms to this schema:\n"
-            f"{json.dumps(schema)}"
+        self.client = OpenAI(
+            api_key=os.getenv("OPENROUTER_API_KEY"),
+            base_url="https://openrouter.ai/api/v1"
         )
 
-        try:
-            response = client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=temperature,
-                max_tokens=32768,
-                # No response_format — extended-thinking models (e.g. Gemini 2.5 Pro)
-                # return None content when JSON mode is active; enforce via system prompt instead.
-            )
+    def generate_json(self, system_prompt, prompt):
 
-            result_text = (response.choices[0].message.content or "").strip()
+        last_error = None
 
-            # Strip markdown code fences
-            if result_text.startswith("```"):
-                lines = result_text.splitlines()
-                end = len(lines) - 1 if lines[-1].strip() == "```" else len(lines)
-                result_text = "\n".join(lines[1:end]).strip()
+        for attempt in range(3):
 
-            # Try direct parse first
             try:
-                return json.loads(result_text)
+                response = self.client.chat.completions.create(
+                    model=self.model,
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": system_prompt
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    temperature=0,
+                    max_tokens=3500
+                )
+
+                # Handle OpenRouter returning no choices
+                if not response.choices:
+                    raise RuntimeError(
+                        f"OpenRouter returned no choices: {response}"
+                    )
+
+                result_text = response.choices[0].message.content
+
+                if not result_text:
+                    raise RuntimeError(
+                        "Model returned empty content"
+                    )
+
+                logger.info(
+                    "Model response length: %d",
+                    len(result_text)
+                )
+
+                return self.parse_json(result_text)
+
+            except Exception as e:
+
+                last_error = e
+
+                logger.error(
+                    "OpenRouter attempt %d failed: %s",
+                    attempt + 1,
+                    e
+                )
+
+                # Retry after a short delay
+                if attempt < 2:
+                    time.sleep(2 ** attempt)
+
+        raise RuntimeError(
+            f"OpenRouter request failed after 3 attempts: {last_error}"
+        )
+
+    def parse_json(self, text):
+
+        try:
+            result = json.loads(text)
+
+            if isinstance(result, dict):
+                return result
+
+        except json.JSONDecodeError:
+            pass
+
+        # Try extracting JSON from markdown/code fences
+        start = text.find("{")
+        end = text.rfind("}")
+
+        if start != -1 and end != -1 and end > start:
+            try:
+                result = json.loads(text[start:end + 1])
+
+                if isinstance(result, dict):
+                    return result
+
             except json.JSONDecodeError:
                 pass
 
-            # Fallback: extract the outermost {...} block in case model added preamble/postamble
-            import re
-            match = re.search(r'\{[\s\S]*\}', result_text)
-            if match:
-                try:
-                    return json.loads(match.group())
-                except json.JSONDecodeError:
-                    pass
+        raise ValueError(
+            "Model returned invalid JSON"
+        )
 
-            logger.error("Model response could not be parsed as JSON. Raw response:\n%s", result_text[:2000])
-            raise RuntimeError(f"Model returned invalid JSON. First 200 chars: {result_text[:200]!r}")
 
-        except RuntimeError:
-            raise
-        except Exception as e:
-            logger.exception("OpenRouter JSON generation failed")
-            raise RuntimeError(f"OpenRouter JSON API error: {str(e)}")
+# IMPORTANT:
+# Other files in your project import this variable.
+client = GeminiClient()
