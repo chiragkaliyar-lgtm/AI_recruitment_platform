@@ -66,7 +66,7 @@ An AI-powered full-stack recruitment platform designed to simplify candidate man
 
 ## Project Architecture
 
-```text
+
 AI-Recruitment-Platform/
 │
 ├── frontend/
