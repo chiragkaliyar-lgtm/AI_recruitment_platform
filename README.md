@@ -66,7 +66,7 @@ An AI-powered full-stack recruitment platform designed to simplify candidate man
 
 ## Project Architecture
 
-
+```text
 AI-Recruitment-Platform/
 │
 ├── frontend/
@@ -92,8 +92,9 @@ AI-Recruitment-Platform/
 ├── docker-compose.yml
 ├── .env.example
 └── README.md
+```
 
- Installation
+## Installation
 
 ### 1. Configure Environment Variables
 
@@ -105,7 +106,7 @@ Create a `.env` file in the project root:
 
 Do not commit your `.env` file or API keys to GitHub.
 
-2. Start the Backend
+## Start the Backend
 
 Run:
 
@@ -115,7 +116,7 @@ The backend will normally run at:
 
     http://localhost:8000
 
- 3. Start the Frontend
+ ## Start the Frontend
 
 Open another terminal:
 
@@ -159,7 +160,7 @@ The system can extract information such as:
 - Certifications
 - Achievements
 
-Candidate Screening
+## Candidate Screening
 
 The platform uses candidate information together with job requirements to assist with candidate screening.
 
@@ -173,7 +174,7 @@ The screening workflow can consider:
 
 AI-generated results are intended to assist recruiters and should be reviewed by a human before making recruitment decisions.
 
- Database
+ ## Database
 
 The application uses PostgreSQL for storing application data including:
 
@@ -184,7 +185,7 @@ The application uses PostgreSQL for storing application data including:
 - Resume information
 - Screening information
 
- Docker
+ ## Docker
 
 Start the services:
 
@@ -198,7 +199,7 @@ To remove containers and associated volumes:
 
     docker compose down -v
 
- Security
+## Security
 
 Sensitive configuration should be stored in environment variables.
 
@@ -212,7 +213,7 @@ Never commit the following:
 
 Use `.env.example` to document the required environment variables without exposing private credentials.
 
-My Contributions
+## My Contributions
 
 - Configured the application for local development
 - Configured the frontend and backend environment
@@ -224,7 +225,7 @@ My Contributions
 - Improved handling of AI-generated responses
 - Customized project branding and documentation
 
-Future Improvements
+## Future Improvements
 
 - Improved resume parsing accuracy
 - Support for additional LLM providers
@@ -236,7 +237,7 @@ Future Improvements
 - Expanded automated testing
 - Production deployment
 
-Developer
+## Developer
 
 **Chirag Kaliyar**
 
@@ -254,6 +255,6 @@ Skills
 - Deep Learning
 - Full-Stack Development
 
-License
+## License
 
 This project is intended for educational and portfolio purposes.
