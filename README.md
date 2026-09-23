@@ -1,91 +1,72 @@
-AI Recruitment & Candidate Screening Platform
+# AI Recruitment & Candidate Screening Platform
+
 An AI-powered full-stack recruitment platform designed to simplify candidate management, resume analysis, job management, and candidate screening.
 
-Features
-HR / Recruiter
-Create and manage job postings
+## Features
 
-View and manage candidates
+### HR / Recruiter
 
-Upload and analyze resumes
+- Create and manage job postings
+- View and manage candidates
+- Upload and analyze resumes
+- AI-assisted resume parsing
+- Candidate profile generation
+- AI-powered candidate screening
+- Candidate-job matching
+- Centralized HR dashboard
 
-AI-assisted resume parsing
+### Candidate
 
-Candidate profile generation
+- Create and manage candidate profiles
+- Upload resumes
+- Manage skills, education, and experience
+- View available opportunities
+- Track application information
 
-AI-powered candidate screening
+### AI Features
 
-Candidate-job matching
+- Resume text extraction
+- Structured resume information extraction
+- AI-assisted candidate analysis
+- Candidate screening
+- Job-candidate matching
+- Structured JSON generation from resume data
 
-Centralized HR dashboard
+## Tech Stack
 
-Candidate
-Create and manage candidate profiles
+### Frontend
 
-Upload resumes
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- Zustand
 
-Manage skills, education, and experience
+### Backend
 
-View available opportunities
+- Python
+- FastAPI
+- SQLAlchemy
+- PostgreSQL
+- Pydantic
 
-Track application information
+### AI / NLP
 
-AI Features
-Resume text extraction
+- OpenRouter API
+- LLM-based resume analysis
+- Structured JSON extraction
+- Resume text processing
 
-Structured resume information extraction
+### Other Technologies
 
-AI-assisted candidate analysis
+- Docker
+- Docker Compose
+- Git
+- REST APIs
 
-Candidate screening
+## Project Architecture
 
-Job-candidate matching
-
-Structured JSON generation from resume data
-
-Tech Stack
-Frontend
-React
-
-TypeScript
-
-Vite
-
-Tailwind CSS
-
-Zustand
-
-Backend
-Python
-
-FastAPI
-
-SQLAlchemy
-
-PostgreSQL
-
-Pydantic
-
-AI / NLP
-OpenRouter API
-
-LLM-based resume analysis
-
-Structured JSON extraction
-
-Resume text processing
-
-Other Technologies
-Docker
-
-Docker Compose
-
-Git
-
-REST APIs
-
-Project Architecture
-
+```text
 AI-Recruitment-Platform/
 │
 ├── frontend/
@@ -111,201 +92,168 @@ AI-Recruitment-Platform/
 ├── docker-compose.yml
 ├── .env.example
 └── README.md
-Installation
-Clone the Repository
-Bash
 
-git clone YOUR_REPOSITORY_URL
-cd AI-Recruitment-Platform
-Configure Environment Variables
-Create a .env file:
+## Installation
 
-env
+### 1. Configure Environment Variables
 
-OPENROUTER_API_KEY=your_openrouter_api_key
-GEMINI_MODEL=openrouter/free
-DATABASE_URL=your_database_url
-Do not commit your .env file or API keys to GitHub.
+Create a `.env` file in the project root:
 
-Start the Backend
-Bash
+    OPENROUTER_API_KEY=your_openrouter_api_key
+    GEMINI_MODEL=openrouter/free
+    DATABASE_URL=your_database_url
 
-python -m uvicorn backend.app.main:app --reload
-Backend:
+Do not commit your `.env` file or API keys to GitHub.
 
+### 2. Start the Backend
 
-http://localhost:8000
-Start the Frontend
+Run:
+
+    python -m uvicorn backend.app.main:app --reload
+
+The backend will normally run at:
+
+    http://localhost:8000
+
+### 3. Start the Frontend
+
 Open another terminal:
 
-Bash
+    cd frontend
+    npm install
+    npm run dev
 
-cd frontend
-npm install
-npm run dev
-Frontend:
+The frontend will normally run at:
 
+    http://localhost:5173
 
-http://localhost:5173
-Resume Processing Workflow
+## Resume Processing Workflow
 
-Resume Upload
-      |
-      v
-PDF / Document Text Extraction
-      |
-      v
-Extracted Resume Text
-      |
-      v
-LLM Processing
-      |
-      v
-Structured Candidate Information
-      |
-      v
-Candidate Profile
-      |
-      v
-Screening / Matching
-The system can extract:
+    Resume Upload
+          |
+          v
+    PDF / Document Text Extraction
+          |
+          v
+    Extracted Resume Text
+          |
+          v
+    LLM Processing
+          |
+          v
+    Structured Candidate Information
+          |
+          v
+    Candidate Profile
+          |
+          v
+    Screening / Matching
 
-Personal information
+The system can extract information such as:
 
-Education
+- Personal information
+- Education
+- Work experience
+- Skills
+- Projects
+- Certifications
+- Achievements
 
-Work experience
+## Candidate Screening
 
-Skills
+The platform uses candidate information together with job requirements to assist with candidate screening.
 
-Projects
+The screening workflow can consider:
 
-Certifications
-
-Achievements
-
-Candidate Screening
-The platform uses candidate information and job requirements to assist with candidate screening.
-
-The screening process can consider:
-
-Technical skills
-
-Experience
-
-Education
-
-Job requirements
-
-Candidate profile information
+- Technical skills
+- Experience
+- Education
+- Job requirements
+- Candidate profile information
 
 AI-generated results are intended to assist recruiters and should be reviewed by a human before making recruitment decisions.
 
-Database
-The application uses PostgreSQL to store application data including:
+## Database
 
-Users
+The application uses PostgreSQL for storing application data including:
 
-Candidate profiles
+- Users
+- Candidate profiles
+- Jobs
+- Applications
+- Resume information
+- Screening information
 
-Jobs
+## Docker
 
-Applications
-
-Resume information
-
-Screening information
-
-Docker
 Start the services:
 
-Bash
+    docker compose up
 
-docker compose up
 Stop the services:
 
-Bash
+    docker compose down
 
-docker compose down
-Remove containers and volumes:
+To remove containers and associated volumes:
 
-Bash
+    docker compose down -v
 
-docker compose down -v
-Security
+## Security
+
 Sensitive configuration should be stored in environment variables.
 
-Never commit:
+Never commit the following:
 
+    .env
+    API keys
+    Database passwords
+    Access tokens
+    Private credentials
 
-.env
-API keys
-Database passwords
-Access tokens
-Private credentials
-Use .env.example to document required environment variables without exposing private credentials.
+Use `.env.example` to document the required environment variables without exposing private credentials.
 
-My Contributions
-Configured the application for local development
+## My Contributions
 
-Configured the frontend and backend environment
+- Configured the application for local development
+- Configured the frontend and backend environment
+- Integrated OpenRouter for AI processing
+- Configured LLM-based resume processing
+- Configured and tested the resume upload workflow
+- Tested frontend and backend integration
+- Updated environment configuration
+- Improved handling of AI-generated responses
+- Customized project branding and documentation
 
-Integrated OpenRouter for AI processing
+## Future Improvements
 
-Configured LLM-based resume processing
+- Improved resume parsing accuracy
+- Support for additional LLM providers
+- Advanced candidate matching
+- Interview scheduling
+- Email notifications
+- Recruiter analytics
+- Improved authentication and authorization
+- Expanded automated testing
+- Production deployment
 
-Configured the resume upload workflow
+## Developer
 
-Tested frontend and backend integration
-
-Updated environment configuration
-
-Improved handling of AI-generated responses
-
-Customized project branding and documentation
-
-Future Improvements
-Improved resume parsing accuracy
-
-Support for additional LLM providers
-
-Advanced candidate matching
-
-Interview scheduling
-
-Email notifications
-
-Recruiter analytics
-
-Improved authentication and authorization
-
-Expanded automated testing
-
-Production deployment
-
-Developer
-Chirag Kaliyar
+**Chirag Kaliyar**
 
 B.Tech Student | Software and AI/ML Enthusiast
 
-Skills
-C
+### Skills
 
-C++
+- C
+- C++
+- Python
+- Java
+- JavaScript
+- SQL
+- Machine Learning
+- Deep Learning
+- Full-Stack Development
 
-Python
+## License
 
-Java
-
-JavaScript
-
-SQL
-
-Machine Learning
-
-Deep Learning
-
-Full-Stack Development
-
-License
 This project is intended for educational and portfolio purposes.
